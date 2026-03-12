@@ -62,3 +62,22 @@ resource "aws_ami_from_instance" "catalogue" {
   source_instance_id = aws_instance.catalogue.id
   depends_on         = [aws_ec2_instance_state.catalogue]
 }
+
+# terminate the instance 
+resource "terraform_data" "catalogue" {
+  triggers_replace = [
+    aws_instance.catalogue.id
+  ]
+
+  connection {
+    type     = "ssh"      # SSH or WinRM
+    user     = "ec2-user" # Remote username
+    password = "DevOps321"
+    host     = aws_instance.catalogue.private_ip # Remote address
+  }
+
+  provisioner "local-exec" {
+    command = "aws ec2 terminate-instances --instance-ids ${aws_instance.catalogue}"
+  }
+  depends_on = [ aws_ami_from_instance.catalogue ]
+}
