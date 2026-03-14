@@ -17,6 +17,10 @@ variable "security_group" {
   default = ["value"]
 }
 
+variable "zone_name" {
+  default = "satyology.site"
+}
+
 
 variable "common_tags" {
   type = map(string)
