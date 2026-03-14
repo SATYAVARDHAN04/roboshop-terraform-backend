@@ -37,7 +37,7 @@ resource "terraform_data" "catalogue" {
   }
 
   provisioner "file" {
-    source      = "catalogue.sh"       # Local file/directory to copy
+    source      = "catalogue.sh"      # Local file/directory to copy
     destination = "/tmp/catalogue.sh" # Remote path to place file/content
   }
 
@@ -82,16 +82,16 @@ resource "terraform_data" "catalogue_terminate" {
   provisioner "local-exec" {
     command = "aws ec2 terminate-instances --instance-ids ${aws_instance.catalogue.id}"
   }
-  depends_on = [ aws_ami_from_instance.catalogue ]
+  depends_on = [aws_ami_from_instance.catalogue]
 }
 
 resource "aws_launch_template" "catalogue" {
-  name = "${var.project}-${var.environment}-catalogue"
-  image_id = aws_ami_from_instance.catalogue.id
+  name                                 = "${var.project}-${var.environment}-catalogue"
+  image_id                             = aws_ami_from_instance.catalogue.id
   instance_initiated_shutdown_behavior = "terminate"
-  instance_type = "t3.micro"
-  vpc_security_group_ids = [local.catalogue]
-  update_default_version = true # each time we update new version will be default
+  instance_type                        = "t3.micro"
+  vpc_security_group_ids               = [local.catalogue]
+  update_default_version               = true # each time we update new version will be default
   tag_specifications {
     resource_type = "instance"
     tags = {
@@ -108,7 +108,7 @@ resource "aws_launch_template" "catalogue" {
 
   # launch template tags
   tags = {
-    Name ="${var.project}-${var.environment}-catalogue"
+    Name = "${var.project}-${var.environment}-catalogue"
   }
 }
 
@@ -119,20 +119,20 @@ resource "aws_autoscaling_group" "catalogue" {
   desired_capacity          = 1
   health_check_grace_period = 120
   health_check_type         = "ELB"
-  target_group_arns = aws_lb_target_group.catalogue.arn
-  vpc_zone_identifier = local.private_subnet_ids
+  target_group_arns         = aws_lb_target_group.catalogue.arn
+  vpc_zone_identifier       = local.private_subnet_ids
   launch_template {
-    id = aws_launch_template.catalogue.id
+    id      = aws_launch_template.catalogue.id
     version = aws_launch_template.catalogue.latest_version
   }
 
   dynamic "tag" {
-    for_each = merge(local.ec2_tags,{
-      Name="${var.project}-${var.environment}-catalogue"
+    for_each = merge(local.ec2_tags, {
+      Name = "${var.project}-${var.environment}-catalogue"
     })
     content {
-      key = tag.key
-      value = tag.value
+      key                 = tag.key
+      value               = tag.value
       propagate_at_launch = true
     }
   }
@@ -154,7 +154,7 @@ resource "aws_autoscaling_group" "catalogue" {
 resource "aws_autoscaling_policy" "catalogue" {
   name                   = "${var.project}-${var.environment}-catalogue"
   autoscaling_group_name = aws_autoscaling_group.catalogue.id
-  policy_type = "TargetTrackingScaling"
+  policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
     predefined_metric_specification {
