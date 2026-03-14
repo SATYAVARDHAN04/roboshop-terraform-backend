@@ -119,8 +119,8 @@ resource "aws_autoscaling_group" "catalogue" {
   desired_capacity          = 2
   health_check_grace_period = 120
   health_check_type         = "ELB"
-  target_group_arns         = aws_lb_target_group.catalogue.arn
-  vpc_zone_identifier       = local.private_subnet_ids
+  target_group_arns         = [aws_lb_target_group.catalogue.arn]
+  vpc_zone_identifier       = [local.private_subnet_ids]
   launch_template {
     id      = aws_launch_template.catalogue.id
     version = aws_launch_template.catalogue.latest_version
@@ -171,7 +171,7 @@ resource "aws_lb_listener_rule" "catalogue" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.catalogue.arn
+    target_group_arn = [aws_lb_target_group.catalogue.arn]
   }
 
   condition {
